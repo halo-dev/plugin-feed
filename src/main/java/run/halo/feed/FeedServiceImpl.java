@@ -47,7 +47,7 @@ public class FeedServiceImpl implements FeedService {
     public Mono<ServerResponse> categoryFeed(String category) {
         return getFeedContext()
                 .flatMap(feedContext -> {
-                    if (BooleanUtils.isTrue(feedContext.basicPluginSetting.getEnableAuthors())) {
+                    if (BooleanUtils.isTrue(feedContext.basicPluginSetting.getEnableCategories())) {
                         var rss2 = buildBaseRss(feedContext);
                         // Get category metadata name by category slug
                         return feedSourceFinder.getCategoriesContentBySlug(category)
