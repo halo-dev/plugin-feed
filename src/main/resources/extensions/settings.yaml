@@ -1,0 +1,13 @@
+apiVersion: v1alpha1
+kind: Setting
+metadata:
+  name: plugin-feed-setting
+spec:
+  forms:
+    - group: basic
+      label: 基本设置
+      formSchema:
+        - $formkit: text
+          help: This will be used for your account.
+          label: Email
+          name: email
