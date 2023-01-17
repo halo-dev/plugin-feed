@@ -15,9 +15,8 @@ spec:
   settingName: plugin-feed-setting
   configMapName: plugin-feed-config
   # 'homepage' usually links to the GitHub repository of the plugin
-  homepage: https://github.com/halo-dev/plugin-starter
-  # 'displayName' explains what the plugin does in only a few words
-  displayName: "插件快速开始模板"
-  description: "这是一个插件快速开始模板"
+  homepage: https://github.com/halo-sigs/plugin-feed
+  displayName: "RSS"
+  description: "为站点生成 RSS 订阅链接"
   license:
-    - name: "MIT"
+    - name: "GPL-3.0"
