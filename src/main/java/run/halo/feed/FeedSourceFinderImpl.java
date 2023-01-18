@@ -8,6 +8,7 @@ import org.thymeleaf.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import run.halo.app.content.ContentWrapper;
+import run.halo.app.core.extension.User;
 import run.halo.app.core.extension.content.Category;
 import run.halo.app.core.extension.content.Post;
 import run.halo.app.core.extension.content.Snapshot;
@@ -82,6 +83,11 @@ public class FeedSourceFinderImpl implements FeedSourceFinder {
     public Flux<Category> getCategoriesContentBySlug(String slug) {
         return client.list(Category.class, category -> StringUtils.equals(category.getSpec().getSlug(), slug),
                 Comparator.naturalOrder());
+    }
+
+    @Override
+    public Mono<User> getUserByName(String name) {
+        return client.fetch(User.class, name);
     }
 
     public Mono<Snapshot> getBaseSnapshot(Ref subjectRef) {

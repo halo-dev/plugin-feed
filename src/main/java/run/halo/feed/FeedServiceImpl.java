@@ -83,11 +83,16 @@ public class FeedServiceImpl implements FeedService {
                 .flatMap(feedContext -> {
                     if (BooleanUtils.isTrue(feedContext.basicPluginSetting.getEnableAuthors())) {
                         var rss2 = buildBaseRss(feedContext);
-                        rss2.setTitle("作者：" + author + " - " + rss2.getTitle());
-                        return postListResultToXmlServerResponse(
-                                feedSourceFinder.listPostsByAuthor(FIRST_PAGE,
-                                        feedContext.basicPluginSetting.getOutputNum(), author),
-                                feedContext, rss2);
+                        // Get author display name by author metadata name
+                        return feedSourceFinder.getUserByName(author)
+                                .flatMap(user -> {
+                                    rss2.setTitle("作者：" + user.getSpec().getDisplayName() + " - " + rss2.getTitle());
+                                    return postListResultToXmlServerResponse(
+                                            feedSourceFinder.listPostsByAuthor(FIRST_PAGE,
+                                                    feedContext.basicPluginSetting.getOutputNum(), author),
+                                            feedContext, rss2);
+                                })
+                                .switchIfEmpty(ServerResponse.notFound().build());
                     } else {
                         return ServerResponse.notFound().build();
                     }
