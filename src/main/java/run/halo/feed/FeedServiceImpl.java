@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -46,57 +47,59 @@ public class FeedServiceImpl implements FeedService {
     @Override
     public Mono<ServerResponse> categoryFeed(String category) {
         return getFeedContext()
+                .filter(feedContext -> BooleanUtils.isTrue(feedContext.basicPluginSetting.getEnableCategories()))
                 .flatMap(feedContext -> {
-                    if (BooleanUtils.isTrue(feedContext.basicPluginSetting.getEnableCategories())) {
-                        var rss2 = buildBaseRss(feedContext);
-                        // Get category metadata name by category slug
-                        return feedSourceFinder.getCategoriesContentBySlug(category)
-                                .next()
-                                .map(categoryContent -> {
-                                    // Set category info
-                                    rss2.setTitle("分类：" + categoryContent.getSpec().getDisplayName() +
-                                            " - " + rss2.getTitle());
-                                    rss2.setLink(categoryContent.getStatusOrDefault().getPermalink());
-                                    if (StringUtils.hasText(categoryContent.getSpec().getDescription())) {
-                                        rss2.setDescription(categoryContent.getSpec().getDescription());
-                                    }
-                                    return categoryContent.getMetadata().getName();
-                                })
-                                .flatMap(categoryMetadataName -> {
-                                    // Get posts by category metadata name
-                                    var listResultMono = feedSourceFinder.listPostsByCategory(
-                                            FIRST_PAGE,
-                                            feedContext.basicPluginSetting.getOutputNum(),
-                                            categoryMetadataName);
-                                    return postListResultToXmlServerResponse(listResultMono, feedContext, rss2);
-                                })
-                                .switchIfEmpty(ServerResponse.notFound().build());
-                    } else {
-                        return ServerResponse.notFound().build();
-                    }
-                });
+                    var rss2 = buildBaseRss(feedContext);
+                    // Get category metadata name by category slug
+                    return feedSourceFinder.getCategoriesContentBySlug(category)
+                            .next()
+                            .map(categoryContent -> {
+                                // Set category info
+                                rss2.setTitle("分类：" + categoryContent.getSpec().getDisplayName() +
+                                        " - " + rss2.getTitle());
+                                rss2.setLink(categoryContent.getStatusOrDefault().getPermalink());
+                                if (StringUtils.hasText(categoryContent.getSpec().getDescription())) {
+                                    rss2.setDescription(categoryContent.getSpec().getDescription());
+                                }
+                                return categoryContent.getMetadata().getName();
+                            })
+                            .flatMap(categoryMetadataName -> {
+                                // Get posts by category metadata name
+                                var listResultMono = feedSourceFinder.listPostsByCategory(
+                                        FIRST_PAGE,
+                                        feedContext.basicPluginSetting.getOutputNum(),
+                                        categoryMetadataName);
+                                return postListResultToXmlServerResponse(listResultMono, feedContext, rss2);
+                            });
+                })
+                .onErrorResume(error -> {
+                    log.error("Failed to get category feed", error);
+                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                })
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     @Override
     public Mono<ServerResponse> authorFeed(String author) {
         return getFeedContext()
+                .filter(feedContext -> BooleanUtils.isTrue(feedContext.basicPluginSetting.getEnableAuthors()))
                 .flatMap(feedContext -> {
-                    if (BooleanUtils.isTrue(feedContext.basicPluginSetting.getEnableAuthors())) {
-                        var rss2 = buildBaseRss(feedContext);
-                        // Get author display name by author metadata name
-                        return feedSourceFinder.getUserByName(author)
-                                .flatMap(user -> {
-                                    rss2.setTitle("作者：" + user.getSpec().getDisplayName() + " - " + rss2.getTitle());
-                                    return postListResultToXmlServerResponse(
-                                            feedSourceFinder.listPostsByAuthor(FIRST_PAGE,
-                                                    feedContext.basicPluginSetting.getOutputNum(), author),
-                                            feedContext, rss2);
-                                })
-                                .switchIfEmpty(ServerResponse.notFound().build());
-                    } else {
-                        return ServerResponse.notFound().build();
-                    }
-                });
+                    var rss2 = buildBaseRss(feedContext);
+                    // Get author display name by author metadata name
+                    return feedSourceFinder.getUserByName(author)
+                            .flatMap(user -> {
+                                rss2.setTitle("作者：" + user.getSpec().getDisplayName() + " - " + rss2.getTitle());
+                                return postListResultToXmlServerResponse(
+                                        feedSourceFinder.listPostsByAuthor(FIRST_PAGE,
+                                                feedContext.basicPluginSetting.getOutputNum(), author),
+                                        feedContext, rss2);
+                            });
+                })
+                .onErrorResume(error -> {
+                    log.error("Failed to get author feed", error);
+                    return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                })
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     private Mono<FeedContext> getFeedContext() {
@@ -113,6 +116,7 @@ public class FeedServiceImpl implements FeedService {
                     Assert.isTrue(basicPluginSetting.getOutputNum() > 0,
                             "OutputNum must be greater than zero");
                     Assert.notNull(basicPluginSetting.getDescriptionType(), "descriptionType cannot be null");
+
                     var externalUrl = externalUrlSupplier.get();
                     // Build feed context
                     return new FeedContext(basicPluginSetting, systemBasicSetting, externalUrl);

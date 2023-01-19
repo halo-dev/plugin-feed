@@ -50,15 +50,17 @@ public class RSS2 {
 
         // TODO lastBuildDate need upgrade halo dependency version
 
-        items.forEach(item -> {
-            Element itemElement = channel.addElement("item");
-            itemElement.addElement("title").addCDATA(item.getTitle());
-            itemElement.addElement("link").addText(item.getLink());
-            itemElement.addElement("description").addCDATA(item.getDescription());
-            itemElement.addElement("guid").addText(item.getGuid());
-            itemElement.addElement("pubDate")
-                    .addText(item.pubDate.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME));
-        });
+        if (items != null) {
+            items.forEach(item -> {
+                Element itemElement = channel.addElement("item");
+                itemElement.addElement("title").addCDATA(item.getTitle());
+                itemElement.addElement("link").addText(item.getLink());
+                itemElement.addElement("description").addCDATA(item.getDescription());
+                itemElement.addElement("guid").addText(item.getGuid());
+                itemElement.addElement("pubDate")
+                        .addText(item.pubDate.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME));
+            });
+        }
 
         return document.asXML();
     }
