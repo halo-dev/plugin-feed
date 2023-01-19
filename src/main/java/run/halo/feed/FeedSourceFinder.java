@@ -12,6 +12,7 @@ public interface FeedSourceFinder {
 
     /**
      * List all posts.
+     *
      * @param page page number
      * @param size page size
      * @return post list result
@@ -20,8 +21,9 @@ public interface FeedSourceFinder {
 
     /**
      * List posts by category.
-     * @param page page number
-     * @param size page size
+     *
+     * @param page     page number
+     * @param size     page size
      * @param category category metadata name
      * @return post list result
      */
@@ -29,8 +31,9 @@ public interface FeedSourceFinder {
 
     /**
      * List posts by author.
-     * @param page page number
-     * @param size page size
+     *
+     * @param page   page number
+     * @param size   page size
      * @param author author slug name
      * @return post list result
      */
@@ -38,6 +41,7 @@ public interface FeedSourceFinder {
 
     /**
      * Get post snapshot post content.
+     *
      * @param snapshot post snapshot
      * @return post content
      */
@@ -45,6 +49,7 @@ public interface FeedSourceFinder {
 
     /**
      * Get categories by category slug.
+     *
      * @param slug category slug
      * @return category
      */

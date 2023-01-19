@@ -1,10 +1,10 @@
 package run.halo.feed;
 
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.comparator.Comparators;
-import org.thymeleaf.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import run.halo.app.content.ContentWrapper;
@@ -58,7 +58,7 @@ public class FeedSourceFinderImpl implements FeedSourceFinder {
     }
 
     private boolean contains(List<String> c, String key) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(key) || c == null) {
+        if (StringUtils.isBlank(key) || c == null) {
             return false;
         }
         return c.contains(key);
