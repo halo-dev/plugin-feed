@@ -89,6 +89,8 @@ public class FeedServiceImpl implements FeedService {
                     return feedSourceFinder.getUserByName(author)
                             .flatMap(user -> {
                                 rss2.setTitle("作者：" + user.getSpec().getDisplayName() + " - " + rss2.getTitle());
+                                // TODO author link need upgrade halo dependency version
+
                                 return postListResultToXmlServerResponse(
                                         feedSourceFinder.listPostsByAuthor(FIRST_PAGE,
                                                 feedContext.basicPluginSetting.getOutputNum(), author),
