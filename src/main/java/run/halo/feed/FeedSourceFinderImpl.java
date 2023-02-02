@@ -15,7 +15,6 @@ import run.halo.app.core.extension.content.Snapshot;
 import run.halo.app.extension.ExtensionUtil;
 import run.halo.app.extension.ListResult;
 import run.halo.app.extension.ReactiveExtensionClient;
-import run.halo.app.extension.Ref;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -31,7 +30,8 @@ public class FeedSourceFinderImpl implements FeedSourceFinder {
 
     public static final Predicate<Post> FIXED_PREDICATE = post -> post.isPublished()
             && Objects.equals(false, post.getSpec().getDeleted())
-            && Post.VisibleEnum.PUBLIC.equals(post.getSpec().getVisible());
+            && Post.VisibleEnum.PUBLIC.equals(post.getSpec().getVisible())
+            && post.getMetadata().getDeletionTimestamp() == null;
 
     static Comparator<Post> defaultComparator() {
         Function<Post, Instant> publishTime =
