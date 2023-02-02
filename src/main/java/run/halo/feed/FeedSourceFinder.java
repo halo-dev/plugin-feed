@@ -42,10 +42,11 @@ public interface FeedSourceFinder {
     /**
      * Get post snapshot post content.
      *
-     * @param snapshot post snapshot
+     * @param snapshotName     snapshot name
+     * @param baseSnapshotName base snapshot name
      * @return post content
      */
-    Mono<ContentWrapper> getPostsContent(String snapshot);
+    Mono<ContentWrapper> getPostContent(String snapshotName, String baseSnapshotName);
 
     /**
      * Get categories by category slug.

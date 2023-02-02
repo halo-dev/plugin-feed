@@ -73,10 +73,27 @@ public class FeedSourceFinderImpl implements FeedSourceFinder {
     }
 
     @Override
-    public Mono<ContentWrapper> getPostsContent(String name) {
-        return client.fetch(Snapshot.class, name)
-                .flatMap(snapshot -> getBaseSnapshot(snapshot.getSpec().getSubjectRef())
-                        .map(snapshot::applyPatch));
+    public Mono<ContentWrapper> getPostContent(String snapshotName, String baseSnapshotName) {
+        return client.fetch(Snapshot.class, baseSnapshotName)
+                .doOnNext(this::checkBaseSnapshot)
+                .flatMap(baseSnapshot -> {
+                    if (StringUtils.equals(snapshotName, baseSnapshotName)) {
+                        return Mono.just(baseSnapshot.applyPatch(baseSnapshot));
+                    }
+                    return client.fetch(Snapshot.class, snapshotName)
+                            .map(snapshot -> snapshot.applyPatch(baseSnapshot));
+                });
+    }
+
+    private void checkBaseSnapshot(Snapshot snapshot) {
+        Assert.notNull(snapshot, "The snapshot must not be null.");
+        String keepRawAnno =
+                ExtensionUtil.nullSafeAnnotations(snapshot).get(Snapshot.KEEP_RAW_ANNO);
+        if (!StringUtils.equals(Boolean.TRUE.toString(), keepRawAnno)) {
+            throw new IllegalArgumentException(
+                    String.format("The snapshot [%s] is not a base snapshot.",
+                            snapshot.getMetadata().getName()));
+        }
     }
 
     @Override
@@ -89,29 +106,5 @@ public class FeedSourceFinderImpl implements FeedSourceFinder {
     public Mono<User> getUserByName(String name) {
         return client.fetch(User.class, name);
     }
-
-    public Mono<Snapshot> getBaseSnapshot(Ref subjectRef) {
-        return listSnapshots(subjectRef)
-                .sort(createTimeReversedComparator().reversed())
-                .filter(p -> StringUtils.equals(Boolean.TRUE.toString(),
-                        ExtensionUtil.nullSafeAnnotations(p).get(Snapshot.KEEP_RAW_ANNO)))
-                .next();
-    }
-
-    public Flux<Snapshot> listSnapshots(Ref subjectRef) {
-        Assert.notNull(subjectRef, "The subjectRef must not be null.");
-        return client.list(Snapshot.class, snapshot -> subjectRef.equals(snapshot.getSpec()
-                .getSubjectRef()), null);
-    }
-
-    Comparator<Snapshot> createTimeReversedComparator() {
-        Function<Snapshot, String> name = snapshot -> snapshot.getMetadata().getName();
-        Function<Snapshot, Instant> createTime = snapshot -> snapshot.getMetadata()
-                .getCreationTimestamp();
-        return Comparator.comparing(createTime)
-                .thenComparing(name)
-                .reversed();
-    }
-
 
 }

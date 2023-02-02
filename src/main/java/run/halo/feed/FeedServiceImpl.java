@@ -142,7 +142,8 @@ public class FeedServiceImpl implements FeedService {
                             BasicSetting.DescriptionType.content)) {
                         // Set releaseSnapshot as description
                         var releaseSnapshot = post.getSpec().getReleaseSnapshot();
-                        return feedSourceFinder.getPostsContent(releaseSnapshot)
+                        var baseSnapshot = post.getSpec().getBaseSnapshot();
+                        return feedSourceFinder.getPostContent(releaseSnapshot, baseSnapshot)
                                 .map(contentWrapper -> itemBuilder
                                         .description(contentWrapper.getContent())
                                         .build());
