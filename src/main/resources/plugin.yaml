@@ -1,17 +1,22 @@
 apiVersion: plugin.halo.run/v1alpha1
 kind: Plugin
 metadata:
+  # The name defines how the plugin is invoked,A unique name
   name: PluginFeed
 spec:
   enabled: true
-  version: 0.0.1-SNAPSHOT
-  requires: "*"
-  author: halo-dev
+  # 'version' is a valid semantic version string (see semver.org).
+  version: 1.0.0-SNAPSHOT
+  requires: ">=2.0.0"
+  author:
+    name: Halo OSS Team
+    website: https://github.com/halo-dev
   logo: https://halo.run/logo
-  settingName: feed-settings
-  configMapName: feed-settings
+  settingName: plugin-feed-setting
+  configMapName: plugin-feed-config
+  # 'homepage' usually links to the GitHub repository of the plugin
   homepage: https://github.com/halo-sigs/plugin-feed
   displayName: "RSS"
   description: "为站点生成 RSS 订阅链接"
   license:
-    - name: "MIT"
+    - name: "GPL-3.0"

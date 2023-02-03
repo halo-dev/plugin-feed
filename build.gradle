@@ -1,21 +1,15 @@
 plugins {
-    id 'org.springframework.boot' version '3.0.0-M3'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "io.github.guqing.plugin-development" version "0.0.6-SNAPSHOT"
     id 'java'
 }
 
 group 'run.halo.feed'
-version '0.0.1-SNAPSHOT'
 sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
-    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://s01.oss.sonatype.org/content/repositories/releases' }
     maven { url 'https://repo.spring.io/milestone' }
     mavenCentral()
-}
-
-bootJar {
-    enabled = false
 }
 
 jar {
@@ -32,15 +26,15 @@ jar {
 }
 
 dependencies {
-    compileOnly 'io.github.guqing:pluggable-suite:0.0.1-SNAPSHOT'
-    compileOnly "io.swagger.core.v3:swagger-core-jakarta:2.2.0"
-    compileOnly 'org.springframework.boot:spring-boot-starter-webflux'
-    annotationProcessor 'io.github.guqing:pluggable-suite:0.0.1-SNAPSHOT'
+    implementation 'org.dom4j:dom4j:2.1.3'
+    implementation 'org.apache.commons:commons-text:1.10.0'
+
+    compileOnly platform("run.halo.dependencies:halo-dependencies:1.0.0")
 
     compileOnly files("lib/halo-2.0.0-SNAPSHOT-plain.jar")
 
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
