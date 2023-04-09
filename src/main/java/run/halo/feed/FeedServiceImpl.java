@@ -147,12 +147,13 @@ public class FeedServiceImpl implements FeedService {
                         var baseSnapshot = post.getSpec().getBaseSnapshot();
                         return feedSourceFinder.getPostContent(releaseSnapshot, baseSnapshot)
                                 .map(contentWrapper -> itemBuilder
-                                        .description(contentWrapper.getContent())
+                                        .description(XmlCharUtils.removeInvalidXmlChar(contentWrapper.getContent()))
                                         .build());
                     } else {
                         // Set excerpt as description
                         return Mono.just(itemBuilder
                                 // Prevent parsing excerpt as html
+                                // escapeXml10 already remove invalid characters
                                 .description(StringEscapeUtils.escapeXml10(post.getStatusOrDefault().getExcerpt()))
                                 .build());
                     }
