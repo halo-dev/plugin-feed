@@ -23,12 +23,13 @@ public class FeedPluginEndpoint {
 
     @Bean
     RouterFunction<ServerResponse> sitemapRouterFunction() {
-        return RouterFunctions
-                .route(GET("/feed.xml").and(accept(MediaType.TEXT_XML)), request -> feedService.allFeed())
-                .andRoute(GET("/rss.xml").and(accept(MediaType.TEXT_XML)), request -> feedService.allFeed())
-                .andRoute(GET("/feed/categories/{category}.xml").and(accept(MediaType.TEXT_XML)),
-                        request -> feedService.categoryFeed(request.pathVariable("category")))
-                .andRoute(GET("/feed/authors/{author}.xml").and(accept(MediaType.TEXT_XML)),
-                        request -> feedService.authorFeed(request.pathVariable("author")));
+        return RouterFunctions.route(GET("/feed.xml").and(accept(MediaType.TEXT_XML)),
+                feedService::allFeed)
+            .andRoute(GET("/rss.xml").and(accept(MediaType.TEXT_XML)),
+                feedService::allFeed)
+            .andRoute(GET("/feed/categories/{category}.xml").and(accept(MediaType.TEXT_XML)),
+                request -> feedService.categoryFeed(request, request.pathVariable("category")))
+            .andRoute(GET("/feed/authors/{author}.xml").and(accept(MediaType.TEXT_XML)),
+                request -> feedService.authorFeed(request, request.pathVariable("author")));
     }
 }
