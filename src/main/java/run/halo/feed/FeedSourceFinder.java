@@ -2,7 +2,6 @@ package run.halo.feed;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import run.halo.app.content.ContentWrapper;
 import run.halo.app.core.extension.User;
 import run.halo.app.core.extension.content.Category;
 import run.halo.app.core.extension.content.Post;
