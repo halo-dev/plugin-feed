@@ -1,11 +1,13 @@
 apiVersion: plugin.halo.run/v1alpha1
 kind: Plugin
 metadata:
-  # The name defines how the plugin is invoked,A unique name
   name: PluginFeed
+  annotations:
+    # Add supports for Halo App Store
+    # https://halo.run/store/apps/app-KhIVw
+    "store.halo.run/app-id": "app-KhIVw"
 spec:
   enabled: true
-  # 'version' is a valid semantic version string (see semver.org).
   version: 1.1.1
   requires: ">=2.4.0"
   author:
@@ -14,7 +16,6 @@ spec:
   logo: https://halo.run/logo
   settingName: plugin-feed-setting
   configMapName: plugin-feed-config
-  # 'homepage' usually links to the GitHub repository of the plugin
   homepage: https://github.com/halo-sigs/plugin-feed
   displayName: "RSS"
   description: "为站点生成 RSS 订阅链接"
