@@ -16,7 +16,7 @@ spec:
   logo: https://halo.run/logo
   settingName: plugin-feed-setting
   configMapName: plugin-feed-config
-  homepage: https://github.com/halo-sigs/plugin-feed
+  homepage: https://github.com/halo-dev/plugin-feed
   displayName: "RSS"
   description: "为站点生成 RSS 订阅链接"
   license:
