@@ -5,7 +5,7 @@ Halo 2.0 的 RSS 订阅链接生成插件
 ## 开发环境
 
 ```bash
-git clone git@github.com:halo-sigs/plugin-feed.git
+git clone git@github.com:halo-dev/plugin-feed.git
 
 # 或者当你 fork 之后
 
@@ -41,7 +41,7 @@ halo:
 
 ## 使用方式
 
-1. 在 [Releases](https://github.com/halo-sigs/plugin-feed/releases) 下载最新的 JAR 文件。
+1. 在 [Releases](https://github.com/halo-dev/plugin-feed/releases) 下载最新的 JAR 文件。
 2. 在 Halo 后台的插件管理上传 JAR 文件进行安装。
 
 目前提供了以下订阅链接类型：
