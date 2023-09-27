@@ -19,6 +19,8 @@ import run.halo.app.infra.ExternalUrlSupplier;
 import run.halo.app.infra.SystemSetting;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Objects;
 
 @Service
@@ -135,9 +137,9 @@ public class FeedServiceImpl implements FeedService {
                 Assert.notNull(basicPluginSetting.getDescriptionType(),
                     "descriptionType cannot be null");
 
-                var externalUrl = externalUrlSupplier.get();
-                if (!externalUrl.isAbsolute()) {
-                    externalUrl = request.exchange().getRequest().getURI().resolve(externalUrl);
+                var externalUrl = externalUrlSupplier.getRaw();
+                if (externalUrl == null) {
+                    externalUrl = externalUrlSupplier.getURL(request.exchange().getRequest());
                 }
                 // Build feed context
                 return new FeedContext(basicPluginSetting, systemBasicSetting, externalUrl);
@@ -155,13 +157,17 @@ public class FeedServiceImpl implements FeedService {
                 if (permalink != null) {
                     var permalinkUri = URI.create(permalink);
                     if (!permalinkUri.isAbsolute()) {
-                        permalinkUri = feedContext.externalUrl.resolve(permalinkUri);
+                        try {
+                            permalinkUri = feedContext.externalUrl.toURI().resolve(permalinkUri);
+                        } catch (URISyntaxException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     permalink = permalinkUri.toString();
                 }
                 var itemBuilder = RSS2.Item.builder()
                     .title(post.getSpec().getTitle())
-                    .link(permalink)
+                    .link(feedContext.externalUrl.toString() + permalink)
                     .pubDate(post.getSpec().getPublishTime())
                     .guid(post.getStatusOrDefault().getPermalink());
 
@@ -207,6 +213,6 @@ public class FeedServiceImpl implements FeedService {
     }
 
     record FeedContext(BasicSetting basicPluginSetting, SystemSetting.Basic systemBasicSetting,
-                       URI externalUrl) {
+                       URL externalUrl) {
     }
 }
