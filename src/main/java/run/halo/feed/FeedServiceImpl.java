@@ -167,7 +167,7 @@ public class FeedServiceImpl implements FeedService {
                 }
                 var itemBuilder = RSS2.Item.builder()
                     .title(post.getSpec().getTitle())
-                    .link(feedContext.externalUrl.toString() + permalink)
+                    .link(permalink)
                     .pubDate(post.getSpec().getPublishTime())
                     .guid(post.getStatusOrDefault().getPermalink());
 
