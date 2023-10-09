@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -23,13 +24,17 @@ public class FeedPluginEndpoint {
 
     @Bean
     RouterFunction<ServerResponse> sitemapRouterFunction() {
-        return RouterFunctions.route(GET("/feed.xml").and(accept(MediaType.TEXT_XML)),
+        RequestPredicate requestPredicate = accept(
+            MediaType.TEXT_XML,
+            MediaType.APPLICATION_RSS_XML
+        );
+        return RouterFunctions.route(GET("/feed.xml").and(requestPredicate),
                 feedService::allFeed)
-            .andRoute(GET("/rss.xml").and(accept(MediaType.TEXT_XML)),
+            .andRoute(GET("/rss.xml").and(requestPredicate),
                 feedService::allFeed)
-            .andRoute(GET("/feed/categories/{category}.xml").and(accept(MediaType.TEXT_XML)),
+            .andRoute(GET("/feed/categories/{category}.xml").and(requestPredicate),
                 request -> feedService.categoryFeed(request, request.pathVariable("category")))
-            .andRoute(GET("/feed/authors/{author}.xml").and(accept(MediaType.TEXT_XML)),
+            .andRoute(GET("/feed/authors/{author}.xml").and(requestPredicate),
                 request -> feedService.authorFeed(request, request.pathVariable("author")));
     }
 }
