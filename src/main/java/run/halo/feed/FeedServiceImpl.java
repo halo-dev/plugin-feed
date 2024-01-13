@@ -151,7 +151,7 @@ public class FeedServiceImpl implements FeedService {
         FeedContext feedContext, RSS2 rss2) {
         return postListResult
             .flatMapIterable(ListResult::getItems)
-            .flatMap(post -> {
+            .concatMap(post -> {
                 // Create item
                 var permalink = post.getStatusOrDefault().getPermalink();
                 if (permalink != null) {
