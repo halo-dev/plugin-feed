@@ -34,7 +34,7 @@ dependencies {
         exclude group: 'org.apache.commons', module: 'commons-lang3'
     }
 
-    implementation platform('run.halo.tools.platform:plugin:2.9.0-SNAPSHOT')
+    implementation platform('run.halo.tools.platform:plugin:2.10.0-SNAPSHOT')
     compileOnly 'run.halo.app:api'
 
     testImplementation 'run.halo.app:api'
