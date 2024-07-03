@@ -23,4 +23,4 @@ spec:
   description: "为站点生成 RSS 订阅链接"
   license:
     - name: "GPL-3.0"
-      url: "https://github.com/halo-dev/plugin-feed/blob/ruibaby-patch-1/LICENSE"
+      url: "https://github.com/halo-dev/plugin-feed/blob/main/LICENSE"
