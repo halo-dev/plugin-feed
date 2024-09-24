@@ -1,51 +1,12 @@
-# plugin-feed
+# Rss Halo Plugin
 
-Halo 2.0 的 RSS 订阅链接生成插件
+RSS插件 Halo 博客版本
 
-## 开发环境
+![](https://img.shields.io/badge/%E6%96%B0%E7%96%86%E8%90%8C%E6%A3%AE%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E5%B7%A5%E4%BD%9C%E5%AE%A4-%E6%8F%90%E4%BE%9B%E6%8A%80%E6%9C%AF%E6%94%AF%E6%8C%81-blue)
 
-```bash
-git clone git@github.com:halo-dev/plugin-feed.git
+## 订阅管理
 
-# 或者当你 fork 之后
-
-git clone git@github.com:{your_github_id}/plugin-feed.git
-```
-
-```bash
-cd path/to/plugin-feed
-```
-
-```bash
-# macOS / Linux
-./gradlew build
-
-# Windows
-./gradlew.bat build
-```
-
-修改 Halo 配置文件：
-
-```yaml
-halo:
-  plugin:
-    runtime-mode: development
-    classes-directories:
-      - "build/classes"
-      - "build/resources"
-    lib-directories:
-      - "libs"
-    fixedPluginPath:
-      - "/path/to/plugin-feed"
-```
-
-## 使用方式
-
-1. 在 [Releases](https://github.com/halo-dev/plugin-feed/releases) 下载最新的 JAR 文件。
-2. 在 Halo 后台的插件管理上传 JAR 文件进行安装。
-
-目前提供了以下订阅链接类型：
-
-1. 全站订阅：`/feed.xml` 或者 `/rss.xml`
-2. 按照分类订阅（可以在插件设置中关闭）：`/feed/categories/{slug}.xml`
-3. 按照作者订阅（可以在插件设置中关闭）：`/feed/authors/{name}.xml`
++ 全站订阅
+    + 无扩展： `/feed` 或 `/rss`
+    + 含扩展： `/feed.xml` 或 `/rss.xml`
++ Follow 认证支持
