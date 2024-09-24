@@ -10,3 +10,4 @@ RSS插件 Halo 博客版本
     + 无扩展： `/feed` 或 `/rss`
     + 含扩展： `/feed.xml` 或 `/rss.xml`
 + Follow 认证支持
++ 封面支持
