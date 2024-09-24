@@ -11,3 +11,17 @@ RSS插件 Halo 博客版本
     + 含扩展： `/feed.xml` 或 `/rss.xml`
 + Follow 认证支持
 + 封面支持
+
+## 安装说明
+
+请先关闭自带 `RSS` 插件
+![Halo RSS](https://github.com/user-attachments/assets/b7a1a195-350f-491f-a506-56824f4fa96b)
+
+1. 下载安装包：[Releases 发布库](https://github.com/QYG2297248353/rss-plugin-halo/releases)
+2. 通过 本地安装
+![image](https://github.com/user-attachments/assets/aaf1d4eb-de9c-4c36-932a-151037cd4943)
+3. 完成安装
+![image](https://github.com/user-attachments/assets/15ef4e0b-59af-4efd-959b-62075907746f)
+
+## 配置说明
+![image](https://github.com/user-attachments/assets/8c136199-d079-4e24-bb9b-f5a1b84b5b5d)
