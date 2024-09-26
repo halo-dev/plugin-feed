@@ -37,6 +37,13 @@ RSS插件 Halo 博客版本
 ## 配置说明
 ![image](https://github.com/user-attachments/assets/8c136199-d079-4e24-bb9b-f5a1b84b5b5d)
 
+## 升级插件
+
+![image](https://github.com/user-attachments/assets/b6843557-4843-4726-addf-053a2e24208f)
+
+![image](https://github.com/user-attachments/assets/2871ef9e-779f-4c86-9f5f-1d204324dcbe)
+
+
 ## 常见问题
 
 ### Follow订阅后为什么没有封面？
