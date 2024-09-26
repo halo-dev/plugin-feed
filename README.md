@@ -9,6 +9,12 @@ RSS插件 Halo 博客版本
 + 全站订阅
     + 无扩展： `/feed` 或 `/rss`
     + 含扩展： `/feed.xml` 或 `/rss.xml`
++ 文章分类订阅
+    + `/feed/categories/{slug}.xml`
+    + `slug` 分类名称(配置中的别名)
++ 文章作者订阅
+    + `/feed/authors/{name}.xml`
+    + `name` 作者用户名(点击文章的作者，在作者主页地址栏最后一段为用户名) 
 + Follow 认证支持
 + 封面支持
 
@@ -25,3 +31,26 @@ RSS插件 Halo 博客版本
 
 ## 配置说明
 ![image](https://github.com/user-attachments/assets/8c136199-d079-4e24-bb9b-f5a1b84b5b5d)
+
+## 常见问题
+
+### Follow订阅后为什么没有封面？
+由于 Follow 数据取自其自己的后端，当您订阅后发现，文章列表没有封面，说明您的 rss链接 被其他人订阅过。
+
+您可以新发布一篇文章，便会出现文章封面。
+
+> 前提：您在文章的设置中配置了封面。
+
+其他解决方案：由于提供了四个订阅地址 `rss` `feed` `rss.xml` `feed.xml` 您可以选择其他订阅地址。
+
+### Follow 认证ID 是什么？
+通过 Follow 客户端订阅后，在您的博客上右键会出现 `认证` `Claim` 按钮，点击后会出现认证方式
+
++ 选择 RSS 标签
+    + `feedId` ==> 认证ID
+    + `userId` ==> 用户ID
+
+![image](https://github.com/user-attachments/assets/8fdce636-c1a2-4fae-87dd-df2be52bac37)
+
+
+
