@@ -9,12 +9,17 @@ RSS插件 Halo 博客版本
 + 全站订阅
     + 无扩展： `/feed` 或 `/rss`
     + 含扩展： `/feed.xml` 或 `/rss.xml`
+    + 示例: [https://blog.lifebus.top/rss](https://blog.lifebus.top/rss)
 + 文章分类订阅
     + `/feed/categories/{slug}.xml`
     + `slug` 分类名称(配置中的别名)
+    + 简化版：`/rss/categories/{slug}`
+    + 示例: [https://blog.lifebus.top/rss/categories/focus-share](https://blog.lifebus.top/rss/categories/focus-share)
 + 文章作者订阅
     + `/feed/authors/{name}.xml`
-    + `name` 作者用户名(点击文章的作者，在作者主页地址栏最后一段为用户名) 
+    + `name` 作者用户名(点击文章的作者，在作者主页地址栏最后一段为用户名)
+    + 简化版：`rss/authors/{name}`
+    + 示例: [https://blog.lifebus.top/rss/authors/qyg2297248353](https://blog.lifebus.top/rss/authors/qyg2297248353)
 + Follow 认证支持
 + 封面支持
 
