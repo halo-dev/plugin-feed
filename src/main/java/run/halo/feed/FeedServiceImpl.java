@@ -180,10 +180,20 @@ public class FeedServiceImpl implements FeedService {
                     var releaseSnapshot = post.getSpec().getReleaseSnapshot();
                     var baseSnapshot = post.getSpec().getBaseSnapshot();
                     return feedSourceFinder.getPostContent(releaseSnapshot, baseSnapshot)
-                        .map(contentWrapper -> itemBuilder
-                            .description(
-                                XmlCharUtils.removeInvalidXmlChar(contentWrapper.getContent()))
-                            .build());
+                        .map(contentWrapper -> {
+                            String content = contentWrapper.getContent();
+                            String description = content;
+                            
+                            // 尝试提取 og:image 封面图
+                            String ogImage = extractOgImage(content);
+                            if (ogImage != null) {
+                                description = String.format("<img src=\"%s\" /><br/>", ogImage) + content;
+                            }
+                            
+                            return itemBuilder
+                                .description(XmlCharUtils.removeInvalidXmlChar(description))
+                                .build();
+                        });
                 } else {
                     // Set excerpt as description
                     return Mono.just(itemBuilder
@@ -214,5 +224,27 @@ public class FeedServiceImpl implements FeedService {
 
     record FeedContext(BasicSetting basicPluginSetting, SystemSetting.Basic systemBasicSetting,
                        URL externalUrl) {
+    }
+
+    // 提取 og:image, 用于在摘要中显示封面图
+    private String extractOgImage(String content) {
+        if (content == null) {
+            return null;
+        }
+        
+        // 使用简单的字符串匹配来提取 og:image
+        String metaTag = "<meta property=\"og:image\" content=\"";
+        int start = content.indexOf(metaTag);
+        if (start == -1) {
+            return null;
+        }
+        
+        start += metaTag.length();
+        int end = content.indexOf("\"", start);
+        if (end == -1) {
+            return null;
+        }
+        
+        return content.substring(start, end);
     }
 }

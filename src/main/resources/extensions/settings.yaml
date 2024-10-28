@@ -32,3 +32,9 @@ spec:
           label: 内容输出条数
           value: 20
           validation: required|number|min:1
+        - $formkit: code
+          name: customContent
+          label: 自定义代码内容
+          placeholder: 在此输入要追加到RSS文件末尾的自定义内容，可用于 follow 认证等
+          value: ""    // 默认值为空
+          language: json

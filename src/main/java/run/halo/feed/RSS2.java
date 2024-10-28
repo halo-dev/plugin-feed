@@ -5,6 +5,7 @@ import lombok.Data;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -21,6 +22,8 @@ public class RSS2 {
     private String description;
 
     private List<Item> items;
+
+    private String customContent;
 
     @Data
     @Builder
@@ -60,6 +63,11 @@ public class RSS2 {
                 itemElement.addElement("pubDate")
                         .addText(item.pubDate.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME));
             });
+        }
+
+        // 只有当 customContent 不为空且不为空白字符时才添加
+        if (StringUtils.hasText(customContent)) {
+            channel.addElement("custom").addCDATA(customContent);
         }
 
         return document.asXML();

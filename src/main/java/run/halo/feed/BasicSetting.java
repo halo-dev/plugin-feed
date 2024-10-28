@@ -16,6 +16,8 @@ public class BasicSetting {
 
     private Integer outputNum = 20;
 
+    private String customContent = "";  // 用户自定义内容，可用于 follow 认证，默认为空
+
 
     enum DescriptionType {
         /**
