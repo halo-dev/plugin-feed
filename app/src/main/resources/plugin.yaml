@@ -1,0 +1,25 @@
+apiVersion: plugin.halo.run/v1alpha1
+kind: Plugin
+metadata:
+  name: PluginFeed
+  annotations:
+    # Add supports for Halo App Store
+    # https://halo.run/store/apps/app-KhIVw
+    "store.halo.run/app-id": "app-KhIVw"
+spec:
+  enabled: true
+  requires: ">=2.20.11"
+  author:
+    name: Halo
+    website: https://github.com/halo-dev
+  logo: logo.svg
+  settingName: plugin-feed-setting
+  configMapName: plugin-feed-config
+  homepage: https://www.halo.run/store/apps/app-KhIVw
+  repo: https://github.com/halo-dev/plugin-feed
+  issues: https://github.com/halo-dev/plugin-feed/issues
+  displayName: "RSS"
+  description: "为站点生成 RSS 订阅链接"
+  license:
+    - name: "GPL-3.0"
+      url: "https://github.com/halo-dev/plugin-feed/blob/main/LICENSE"
