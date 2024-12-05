@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import run.halo.app.core.extension.content.Category;
 import run.halo.app.core.extension.content.Post;
+import run.halo.app.core.extension.content.Tag;
 import run.halo.app.extension.ListOptions;
 import run.halo.app.extension.ListResult;
 import run.halo.app.extension.PageRequestImpl;
@@ -40,6 +41,17 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public Mono<ListResult<Post>> listPostByTagSlug(int size, String slug) {
+        return getTagBySlug(slug)
+            .flatMap(tag -> {
+                var tagName = tag.getMetadata().getName();
+                return client.listBy(Post.class,
+                    buildPostListOptions(in("spec.tags", tagName)),
+                    PageRequestImpl.ofSize(size).withSort(defaultSort()));
+            });
+    }
+
+    @Override
     public Mono<ListResult<Post>> listPostByAuthor(int size, String author) {
         return client.listBy(Post.class, buildPostListOptions(in("spec.owner", author)),
             PageRequestImpl.ofSize(size).withSort(defaultSort()));
@@ -49,6 +61,16 @@ public class PostServiceImpl implements PostService {
     public Mono<Category> getCategoryBySlug(String categorySlug) {
         return client.listBy(Category.class, ListOptions.builder()
                     .fieldQuery(equal("spec.slug", categorySlug))
+                    .build(),
+                PageRequestImpl.ofSize(1)
+            )
+            .flatMap(listResult -> Mono.justOrEmpty(ListResult.first(listResult)));
+    }
+
+    @Override
+    public Mono<Tag> getTagBySlug(String slug) {
+        return client.listBy(Tag.class, ListOptions.builder()
+                    .fieldQuery(equal("spec.slug", slug))
                     .build(),
                 PageRequestImpl.ofSize(1)
             )

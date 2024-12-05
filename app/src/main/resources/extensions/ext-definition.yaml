@@ -22,6 +22,16 @@ spec:
 apiVersion: plugin.halo.run/v1alpha1
 kind: ExtensionDefinition
 metadata:
+  name: feed-tag-post-rss-item
+spec:
+  className: run.halo.feed.provider.TagPostRssProvider
+  extensionPointName: feed-rss-route-item
+  displayName: "标签文章订阅"
+  description: "用于生成按照标签订阅文章列表的 RSS 订阅源"
+---
+apiVersion: plugin.halo.run/v1alpha1
+kind: ExtensionDefinition
+metadata:
   name: feed-author-post-rss-item
 spec:
   className: run.halo.feed.provider.AuthorPostRssProvider
