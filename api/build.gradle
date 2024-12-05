@@ -30,7 +30,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact tasks.sourcesJar
 
             artifactId = 'api'
             version = project.hasProperty('version') ? project.property('version') : 'unspecified'
