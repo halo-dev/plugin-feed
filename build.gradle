@@ -1,34 +1,12 @@
 plugins {
-    id "io.freefair.lombok" version "8.0.0-rc2"
-    id "run.halo.plugin.devtools" version "0.0.9"
     id 'java'
 }
 
-group 'run.halo.feed'
-sourceCompatibility = JavaVersion.VERSION_17
-
-repositories {
-    mavenCentral()
-    maven { url 'https://s01.oss.sonatype.org/content/repositories/releases' }
-    maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
-    maven { url 'https://repo.spring.io/milestone' }
-}
-
-dependencies {
-    implementation 'org.dom4j:dom4j:2.1.3'
-    implementation('org.apache.commons:commons-text:1.10.0') {
-        // Because the transitive dependency already exists in halo.
-        exclude group: 'org.apache.commons', module: 'commons-lang3'
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url 'https://s01.oss.sonatype.org/content/repositories/releases' }
+        maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url 'https://repo.spring.io/milestone' }
     }
-
-    implementation platform('run.halo.tools.platform:plugin:2.10.0-SNAPSHOT')
-    compileOnly 'run.halo.app:api'
-
-    testImplementation 'run.halo.app:api'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-}
-
-test {
-    useJUnitPlatform()
 }

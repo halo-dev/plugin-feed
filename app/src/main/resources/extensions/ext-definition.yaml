@@ -1,0 +1,30 @@
+apiVersion: plugin.halo.run/v1alpha1
+kind: ExtensionPointDefinition
+metadata:
+  name: feed-rss-route-item
+spec:
+  className: run.halo.feed.RssRouteItem
+  displayName: "RSS 订阅源"
+  description: "用于扩展 RSS 订阅源的生成"
+  type: MULTI_INSTANCE
+  icon: "/plugins/PluginFeed/assets/logo.svg"
+---
+apiVersion: plugin.halo.run/v1alpha1
+kind: ExtensionDefinition
+metadata:
+  name: feed-category-post-rss-item
+spec:
+  className: run.halo.feed.provider.CategoryPostRssProvider
+  extensionPointName: feed-rss-route-item
+  displayName: "分类文章订阅"
+  description: "用于生成按照分类订阅文章的 RSS 订阅源"
+---
+apiVersion: plugin.halo.run/v1alpha1
+kind: ExtensionDefinition
+metadata:
+  name: feed-author-post-rss-item
+spec:
+  className: run.halo.feed.provider.AuthorPostRssProvider
+  extensionPointName: feed-rss-route-item
+  displayName: "作者文章订阅"
+  description: "用于生成按照作者订阅文章的 RSS 订阅源"

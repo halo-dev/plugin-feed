@@ -16,3 +16,4 @@ jobs:
     with:
       app-id: app-KhIVw
       skip-node-setup: true
+      artifacts-path: 'app/build/libs'

@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+    id "io.freefair.lombok" version "8.0.0-rc2"
+    id "run.halo.plugin.devtools" version "0.4.1"
+}
+
+group = 'run.halo.feed'
+version = rootProject.version
+
+jar {
+    dependsOn(":api:jar")
+}
+
+dependencies {
+    implementation project(':api')
+    compileOnly 'run.halo.app:api'
+    implementation 'org.dom4j:dom4j:2.1.3'
+    implementation('org.apache.commons:commons-text:1.10.0') {
+        // Because the transitive dependency already exists in halo.
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
+    }
+
+    testImplementation 'run.halo.app:api'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+halo {
+    version = '2.20.11'
+    debug = true
+}

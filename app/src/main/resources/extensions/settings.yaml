@@ -1,0 +1,40 @@
+apiVersion: v1alpha1
+kind: Setting
+metadata:
+  name: plugin-feed-setting
+spec:
+  forms:
+    - group: basic
+      label: 基本设置
+      formSchema:
+        - $formkit: checkbox
+          name: enableCategories
+          label: 开启单个分类的订阅链接
+          value: true
+          validation: required
+        - $formkit: checkbox
+          name: enableAuthors
+          label: 开启单个作者的订阅链接
+          value: true
+          validation: required
+        - $formkit: radio
+          name: descriptionType
+          label: 内容输出类型
+          value: excerpt
+          options:
+            - value: excerpt
+              label: 摘要
+            - value: content
+              label: 全文
+          validation: required
+        - $formkit: number
+          name: outputNum
+          label: 内容输出条数
+          value: 20
+          validation: required|number|min:1
+        - $formkit: code
+          name: rssExtraTags
+          label: 注入额外的 RSS 标签
+          value: ""
+          height: 150px
+          language: html
