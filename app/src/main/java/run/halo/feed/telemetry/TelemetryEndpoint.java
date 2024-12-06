@@ -2,6 +2,8 @@ package run.halo.feed.telemetry;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,9 +18,14 @@ import run.halo.feed.TelemetryEventInfo;
 @RequiredArgsConstructor
 public class TelemetryEndpoint {
     public static final String TELEMETRY_PATH = "/plugins/feed/assets/telemetry.gif";
-    static final String ONE_PIXEL_GIF_BASE64 =
-        "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+    static final Resource ONE_PIXEL;
     private final TelemetryRecorderDelegator telemetryRecorderDelegator;
+
+    static {
+        // RSS readers may thumbnail images, and using base64 images may cause RSS readers to
+        // fail to parse correctly.
+        ONE_PIXEL = new ClassPathResource("1pixel.png", TelemetryEndpoint.class.getClassLoader());
+    }
 
     @Bean
     public RouterFunction<ServerResponse> telemetryImageRouter() {
@@ -28,7 +35,7 @@ public class TelemetryEndpoint {
                 return ServerResponse.ok()
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_GIF_VALUE)
                     .cacheControl(CacheControl.noCache())
-                    .bodyValue(ONE_PIXEL_GIF_BASE64);
+                    .bodyValue(ONE_PIXEL);
             })
             .build();
     }

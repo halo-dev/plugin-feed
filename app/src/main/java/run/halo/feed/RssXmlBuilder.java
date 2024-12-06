@@ -232,7 +232,7 @@ public class RssXmlBuilder {
         );
 
         // Append telemetry image to description
-        return item.getDescription() + telemetryImageHtml;
+        return telemetryImageHtml + item.getDescription();
     }
 
     static <T> List<T> nullSafeList(List<T> list) {
