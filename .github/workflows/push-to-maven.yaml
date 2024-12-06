@@ -1,0 +1,48 @@
+name: Publish plugin API module to Maven
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Extract version from GitHub tag
+        id: extract_version
+        run: |
+          tag_name=${{ github.event.release.tag_name }}
+          VERSION=${tag_name#v}
+          echo "Extracted Version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Build with Gradle
+        run: ./gradlew clean build -Pversion=${{ env.VERSION }}
+
+      - name: Push to Maven
+        env:
+          OSSR_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          OSSR_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+        run: ./gradlew :api:publish -Pversion=${{ env.VERSION }}

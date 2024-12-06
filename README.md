@@ -61,7 +61,7 @@ public class RssAutoConfiguration {
     }
 
     @Async
-    @EventListener({MomentUpdatedEvent.class, MomentDeletedEvent.class, ContextClosedEvent.class})
+    @EventListener({MomentUpdatedEvent.class, MomentDeletedEvent.class})
     public void onMomentUpdatedOrDeleted() {
         var rule = CacheClearRule.forExact("/feed/moments/rss.xml");
         var event = RssCacheClearRequested.forRule(this, rule);
