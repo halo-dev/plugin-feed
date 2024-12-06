@@ -92,6 +92,7 @@ class RSS2Test {
         var lastBuildDate = RssXmlBuilder.instantToString(instant);
         var rssXml = new RssXmlBuilder()
             .withRss2(rss)
+            .withLastBuildDate(instant)
             .withGenerator("Halo")
             .withExtractRssTags("""
                 <user>

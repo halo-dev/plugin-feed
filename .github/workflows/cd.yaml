@@ -15,5 +15,7 @@ jobs:
       contents: write
     with:
       app-id: app-KhIVw
-      skip-node-setup: true
+      node-version: "20"
+      pnpm-version: "9"
+      ui-path: "ui"
       artifacts-path: 'app/build/libs'
