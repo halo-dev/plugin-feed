@@ -1,9 +1,7 @@
 package run.halo.feed;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
-import static org.springframework.web.reactive.function.server.RequestPredicates.path;
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
@@ -12,15 +10,16 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.server.HandlerFunction;
-import org.springframework.web.reactive.function.server.RequestPredicate;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
+import run.halo.app.infra.ExternalUrlSupplier;
 import run.halo.app.plugin.extensionpoint.ExtensionGetter;
 import run.halo.feed.provider.PostRssProvider;
+
+import java.util.ArrayList;
+
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 
 @Component
 @AllArgsConstructor
@@ -33,6 +32,7 @@ public class FeedPluginEndpoint {
     private final PostRssProvider postRssProvider;
     private final ExtensionGetter extensionGetter;
     private final RssCacheManager rssCacheManager;
+    private final ExternalUrlSupplier externalUrlSupplier;
 
     @Bean
     RouterFunction<ServerResponse> rssRouterFunction() {
@@ -42,6 +42,45 @@ public class FeedPluginEndpoint {
                     .flatMap(this::buildResponse)
             )
             .build();
+    }
+
+    @Bean
+    RouterFunction<ServerResponse> rssSourcesListerRouter() {
+        return RouterFunctions.route()
+            .GET("/apis/api.feed.halo.run/v1alpha1/rss-sources", this::listRssSources)
+            .build();
+    }
+
+    private Mono<ServerResponse> listRssSources(ServerRequest request) {
+        var externalUrl = externalUrlSupplier.getURL(request.exchange().getRequest()).toString();
+        return extensionGetter.getEnabledExtensions(RssRouteItem.class)
+            .concatMap(item -> {
+                var rssSource = RssSource.builder()
+                    .displayName(item.displayName())
+                    .description(item.description())
+                    .example(item.example());
+                return item.pathPattern()
+                    .map(pattern -> buildPathPattern(pattern, item.namespace()))
+                    .doOnNext(path -> rssSource.pattern(externalUrl + path))
+                    .then(Mono.fromSupplier(rssSource::build));
+            })
+            .collectList()
+            .flatMap(result -> {
+                var allPosts = RssSource.builder()
+                    .pattern(externalUrl + "/rss.xml")
+                    .displayName("订阅所有文章")
+                    .description("会根据设置的文章数量返回最新的文章")
+                    .example("https://example.com/rss.xml")
+                    .build();
+                var sources = new ArrayList<>();
+                sources.add(allPosts);
+                sources.addAll(result);
+                return ServerResponse.ok().bodyValue(sources);
+            });
+    }
+
+    @Builder
+    record RssSource(String displayName, String description, String pattern, String example) {
     }
 
     @Bean
@@ -84,25 +123,25 @@ public class FeedPluginEndpoint {
                         .and(ACCEPT_PREDICATE)
                     );
             }
-
-            private String buildPathPattern(String pathPattern, String namespace) {
-                var sb = new StringBuilder("/feed/");
-
-                if (StringUtils.isNotBlank(namespace)) {
-                    sb.append(namespace);
-                    if (!namespace.endsWith("/")) {
-                        sb.append("/");
-                    }
-                }
-
-                if (pathPattern.startsWith("/")) {
-                    pathPattern = pathPattern.substring(1);
-                }
-                sb.append(pathPattern);
-
-                return sb.toString();
-            }
         };
+    }
+
+    private String buildPathPattern(String pathPattern, String namespace) {
+        var sb = new StringBuilder("/feed/");
+
+        if (StringUtils.isNotBlank(namespace)) {
+            sb.append(namespace);
+            if (!namespace.endsWith("/")) {
+                sb.append("/");
+            }
+        }
+
+        if (pathPattern.startsWith("/")) {
+            pathPattern = pathPattern.substring(1);
+        }
+        sb.append(pathPattern);
+
+        return sb.toString();
     }
 
     private Mono<ServerResponse> buildResponse(String xml) {
