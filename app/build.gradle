@@ -24,6 +24,16 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+tasks.register('copyUI', Copy) {
+    dependsOn ':ui:build'
+    from project(':ui').layout.buildDirectory.dir('dist')
+    into layout.buildDirectory.dir('resources/main/console')
+}
+
+tasks.named('processResources') {
+    dependsOn('copyUI')
+}
+
 test {
     useJUnitPlatform()
 }
