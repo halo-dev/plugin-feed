@@ -8,3 +8,4 @@ rootProject.name = 'plugin-feed'
 
 include 'api'
 include 'app'
+include 'ui'
