@@ -2,6 +2,7 @@ package run.halo.feed;
 
 import com.google.common.base.Throwables;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -14,6 +15,9 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
+import run.halo.feed.telemetry.TelemetryEndpoint;
 
 @Slf4j
 public class RssXmlBuilder {
@@ -21,6 +25,7 @@ public class RssXmlBuilder {
     private String generator = "Halo v2.0";
     private String extractRssTags;
     private Instant lastBuildDate = Instant.now();
+    private String externalUrl;
 
     public RssXmlBuilder withRss2(RSS2 rss2) {
         this.rss2 = rss2;
@@ -45,6 +50,11 @@ public class RssXmlBuilder {
      */
     RssXmlBuilder withLastBuildDate(Instant lastBuildDate) {
         this.lastBuildDate = lastBuildDate;
+        return this;
+    }
+
+    RssXmlBuilder withExternalUrl(String externalUrl) {
+        this.externalUrl = externalUrl;
         return this;
     }
 
@@ -127,18 +137,19 @@ public class RssXmlBuilder {
         }
     }
 
-    private static void createItemElementsToChannel(Element channel, List<RSS2.Item> items) {
+    private void createItemElementsToChannel(Element channel, List<RSS2.Item> items) {
         if (CollectionUtils.isEmpty(items)) {
             return;
         }
         items.forEach(item -> createItemElementToChannel(channel, item));
     }
 
-    private static void createItemElementToChannel(Element channel, RSS2.Item item) {
+    private void createItemElementToChannel(Element channel, RSS2.Item item) {
         Element itemElement = channel.addElement("item");
         itemElement.addElement("title").addCDATA(item.getTitle());
         itemElement.addElement("link").addText(item.getLink());
-        itemElement.addElement("description").addCDATA(item.getDescription());
+        var description = getDescriptionWithTelemetry(item);
+        itemElement.addElement("description").addCDATA(description);
         itemElement.addElement("guid")
             .addAttribute("isPermaLink", "false")
             .addText(item.getGuid());
@@ -199,6 +210,29 @@ public class RssXmlBuilder {
                 }
             }
         });
+    }
+
+    private String getDescriptionWithTelemetry(RSS2.Item item) {
+        if (StringUtils.isBlank(externalUrl)) {
+            return item.getDescription();
+        }
+        var uri = UriComponentsBuilder.fromUriString(item.getLink())
+            .build();
+        var telemetryBaseUri = externalUrl + TelemetryEndpoint.TELEMETRY_PATH;
+        var telemetryUri = UriComponentsBuilder.fromUriString(telemetryBaseUri)
+            .queryParam("title", UriUtils.encode(item.getTitle(), StandardCharsets.UTF_8))
+            .queryParam("url", uri.getPath())
+            .build(true)
+            .toUriString();
+
+        // Build the telemetry image HTML
+        var telemetryImageHtml = String.format(
+            "<img src=\"%s\" width=\"1\" height=\"1\" alt=\"\" style=\"opacity:0;\" />",
+            telemetryUri
+        );
+
+        // Append telemetry image to description
+        return telemetryImageHtml + item.getDescription();
     }
 
     static <T> List<T> nullSafeList(List<T> list) {
