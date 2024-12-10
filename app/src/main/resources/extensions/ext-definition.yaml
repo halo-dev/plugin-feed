@@ -10,6 +10,17 @@ spec:
   icon: "/plugins/PluginFeed/assets/logo.svg"
 ---
 apiVersion: plugin.halo.run/v1alpha1
+kind: ExtensionPointDefinition
+metadata:
+  name: feed-telemetry-recorder
+spec:
+  className: run.halo.feed.TelemetryRecorder
+  displayName: "遥测内容访问量记录器"
+  description: "用于扩展 RSS 内容访问量的存储方式，如上报到 Umami"
+  type: MULTI_INSTANCE
+  icon: "/plugins/PluginFeed/assets/logo.svg"
+---
+apiVersion: plugin.halo.run/v1alpha1
 kind: ExtensionDefinition
 metadata:
   name: feed-category-post-rss-item
