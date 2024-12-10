@@ -35,20 +35,21 @@ public class RssCacheManager {
     }
 
     private Mono<String> generateRssXml(Mono<RSS2> loader) {
-        var builder = new RssXmlBuilder();
+        var builder = new RssXmlBuilder()
+            .withGenerator("Halo v2.0");
+
         var rssMono = loader.doOnNext(builder::withRss2);
-        var generatorMono = getRssGenerator()
-            .doOnNext(builder::withGenerator);
+
+        var generatorMono = systemInfoGetter.get()
+            .doOnNext(info -> builder.withExternalUrl(info.getUrl().toString())
+                .withGenerator("Halo v" + info.getVersion().toStableVersion().toString())
+            );
+
         var extractTagsMono = BasicProp.getBasicProp(settingFetcher)
             .doOnNext(prop -> builder.withExtractRssTags(prop.getRssExtraTags()));
+
         return Mono.when(rssMono, generatorMono, extractTagsMono)
             .then(Mono.fromSupplier(builder::toXmlString));
-    }
-
-    private Mono<String> getRssGenerator() {
-        return systemInfoGetter.get()
-            .map(info -> "Halo v" + info.getVersion().toStableVersion().toString())
-            .defaultIfEmpty("Halo v2.0");
     }
 
     @EventListener(PluginConfigUpdatedEvent.class)
