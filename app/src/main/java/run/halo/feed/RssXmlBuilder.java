@@ -41,10 +41,16 @@ public class RssXmlBuilder {
     private String generator = "Halo v2.0";
     private String extractRssTags;
     private Instant lastBuildDate = Instant.now();
+    private String requestPath;
     private String externalUrl;
 
     public RssXmlBuilder withRss2(RSS2 rss2) {
         this.rss2 = rss2;
+        return this;
+    }
+
+    public RssXmlBuilder withRequestPath(String requestPath) {
+        this.requestPath = requestPath;
         return this;
     }
 
@@ -80,12 +86,21 @@ public class RssXmlBuilder {
         Element root = DocumentHelper.createElement("rss");
         root.addAttribute("version", "2.0");
         root.addNamespace("dc", "http://purl.org/dc/elements/1.1/");
+        root.addNamespace("atom", "http://www.w3.org/2005/Atom");
         root.addNamespace("media", "http://search.yahoo.com/mrss/");
         document.setRootElement(root);
 
         Element channel = root.addElement("channel");
         channel.addElement("title").addText(rss2.getTitle());
         channel.addElement("link").addText(rss2.getLink());
+        if (StringUtils.isNotBlank(requestPath)) {
+            channel.addElement("atom:link")
+                .addAttribute("href", UriComponentsBuilder.fromUriString(rss2.getLink())
+                    .path(requestPath).toUriString()
+                )
+                .addAttribute("rel", "self")
+                .addAttribute("type", "application/rss+xml");
+        }
 
         var description = StringUtils.defaultIfBlank(rss2.getDescription(), rss2.getTitle());
         var secureDescription = XmlCharUtils.removeInvalidXmlChar(description);
@@ -286,6 +301,8 @@ public class RssXmlBuilder {
         return webClient.get()
             .uri(url)
             .header(HttpHeaders.USER_AGENT, UA)
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
+            .header(HttpHeaders.RANGE, "bytes=0-0")
             .retrieve()
             .toBodilessEntity()
             .map(HttpEntity::getHeaders)

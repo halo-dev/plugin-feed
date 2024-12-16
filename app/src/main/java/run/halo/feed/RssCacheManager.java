@@ -25,18 +25,20 @@ public class RssCacheManager {
     private final SystemInfoGetter systemInfoGetter;
     private final ReactiveSettingFetcher settingFetcher;
 
-    public Mono<String> get(String key, Mono<RSS2> loader) {
-        return Mono.fromCallable(() -> cache.get(key, () -> generateRssXml(loader)
-                .doOnNext(xml -> cache.put(key, xml))
-                .block()
+    public Mono<String> get(String requestPath, Mono<RSS2> loader) {
+        return Mono.fromCallable(() -> cache.get(requestPath,
+                () -> generateRssXml(requestPath, loader)
+                    .doOnNext(xml -> cache.put(requestPath, xml))
+                    .block()
             ))
             .cache()
             .subscribeOn(Schedulers.boundedElastic());
     }
 
-    private Mono<String> generateRssXml(Mono<RSS2> loader) {
+    private Mono<String> generateRssXml(String requestPath, Mono<RSS2> loader) {
         var builder = new RssXmlBuilder()
-            .withGenerator("Halo v2.0");
+            .withGenerator("Halo v2.0")
+            .withRequestPath(requestPath);
 
         var rssMono = loader.doOnNext(builder::withRss2);
 
