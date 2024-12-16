@@ -8,6 +8,7 @@ group = 'run.halo.feed'
 version = rootProject.version
 
 jar {
+    archiveBaseName.set("plugin-feed")
     dependsOn(":api:jar")
 }
 
