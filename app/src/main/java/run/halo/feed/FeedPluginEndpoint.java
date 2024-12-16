@@ -1,5 +1,9 @@
 package run.halo.feed;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RequestPredicates.path;
+
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.apache.commons.lang3.StringUtils;
@@ -10,16 +14,16 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.server.*;
+import org.springframework.web.reactive.function.server.HandlerFunction;
+import org.springframework.web.reactive.function.server.RequestPredicate;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import run.halo.app.infra.ExternalUrlSupplier;
 import run.halo.app.plugin.extensionpoint.ExtensionGetter;
 import run.halo.feed.provider.PostRssProvider;
-
-import java.util.ArrayList;
-
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
-import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 
 @Component
 @AllArgsConstructor
@@ -145,7 +149,8 @@ public class FeedPluginEndpoint {
     }
 
     private Mono<ServerResponse> buildResponse(String xml) {
-        return ServerResponse.ok().contentType(MediaType.TEXT_XML)
+        // https://www.rssboard.org/rss-validator/docs/warning/EncodingMismatch.html
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_XML)
             .bodyValue(xml);
     }
 }
