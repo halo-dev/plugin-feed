@@ -64,6 +64,7 @@ public class RssXmlBuilder {
 
         Element root = DocumentHelper.createElement("rss");
         root.addAttribute("version", "2.0");
+        root.addNamespace("dc", "http://purl.org/dc/elements/1.1/");
         root.addNamespace("media", "http://search.yahoo.com/mrss/");
         document.setRootElement(root);
 
@@ -167,7 +168,9 @@ public class RssXmlBuilder {
             .addText(item.getGuid());
 
         if (StringUtils.isNotBlank(item.getAuthor())) {
-            itemElement.addElement("author").addText(item.getAuthor());
+            // https://www.rssboard.org/rss-validator/docs/error/InvalidContact.html
+            itemElement.addElement("dc:creator")
+                .addText(item.getAuthor());
         }
 
         if (StringUtils.isNotBlank(item.getEnclosureUrl())) {
