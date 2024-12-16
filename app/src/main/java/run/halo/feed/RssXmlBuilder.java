@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
@@ -146,9 +147,13 @@ public class RssXmlBuilder {
 
     private void createItemElementToChannel(Element channel, RSS2.Item item) {
         Element itemElement = channel.addElement("item");
-        itemElement.addElement("title").addCDATA(item.getTitle());
+        itemElement.addElement("title")
+            .addCDATA(XmlCharUtils.removeInvalidXmlChar(item.getTitle()));
         itemElement.addElement("link").addText(item.getLink());
-        var description = getDescriptionWithTelemetry(item);
+
+        var description = Optional.of(getDescriptionWithTelemetry(item))
+            .map(XmlCharUtils::removeInvalidXmlChar)
+            .orElseThrow();
         itemElement.addElement("description").addCDATA(description);
         itemElement.addElement("guid")
             .addAttribute("isPermaLink", "false")
