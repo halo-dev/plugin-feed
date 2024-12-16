@@ -42,7 +42,9 @@ public class FeedPluginEndpoint {
     RouterFunction<ServerResponse> rssRouterFunction() {
         return RouterFunctions.route()
             .GET(path("/feed.xml").or(path("/rss.xml")).and(ACCEPT_PREDICATE),
-                request -> rssCacheManager.get("/rss.xml", postRssProvider.handler(request))
+                request -> rssCacheManager.get(request.requestPath().toString(),
+                        postRssProvider.handler(request)
+                    )
                     .flatMap(this::buildResponse)
             )
             .build();
@@ -116,7 +118,9 @@ public class FeedPluginEndpoint {
             }
 
             private HandlerFunction<ServerResponse> buildHandleFunction(RssRouteItem routeItem) {
-                return request -> rssCacheManager.get(request.path(), routeItem.handler(request))
+                return request -> rssCacheManager.get(request.requestPath().toString(),
+                        routeItem.handler(request)
+                    )
                     .flatMap(item -> buildResponse(item));
             }
 
