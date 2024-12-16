@@ -49,7 +49,10 @@ public class RssCacheManager {
             .doOnNext(prop -> builder.withExtractRssTags(prop.getRssExtraTags()));
 
         return Mono.when(rssMono, generatorMono, extractTagsMono)
-            .then(Mono.fromSupplier(builder::toXmlString));
+            // toXmlString is a blocking operation
+            .then(Mono.fromCallable(builder::toXmlString)
+                .subscribeOn(Schedulers.boundedElastic())
+            );
     }
 
     @EventListener(PluginConfigUpdatedEvent.class)

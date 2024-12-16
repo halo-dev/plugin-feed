@@ -15,13 +15,28 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.lang.NonNull;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
+import reactor.netty.http.client.HttpClient;
 import run.halo.feed.telemetry.TelemetryEndpoint;
 
 @Slf4j
 public class RssXmlBuilder {
+    static final String UA =
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
+            + "Chrome/131.0.0.0 Safari/537.36";
+    private final WebClient webClient = WebClient.builder()
+        .clientConnector(new ReactorClientHttpConnector(HttpClient.create()
+            .followRedirect(true))
+        )
+        .build();
+
     private RSS2 rss2;
     private String generator = "Halo v2.0";
     private String extractRssTags;
@@ -174,10 +189,17 @@ public class RssXmlBuilder {
         }
 
         if (StringUtils.isNotBlank(item.getEnclosureUrl())) {
-            itemElement.addElement("enclosure")
+            var enclosureElement = itemElement.addElement("enclosure")
                 .addAttribute("url", item.getEnclosureUrl())
-                .addAttribute("length", item.getEnclosureLength())
                 .addAttribute("type", item.getEnclosureType());
+
+            var enclosureLength = item.getEnclosureLength();
+            if (StringUtils.isBlank(enclosureLength)) {
+                // https://www.rssboard.org/rss-validator/docs/error/MissingAttribute.html
+                var fileBytes = getFileSizeBytes(item.getEnclosureUrl());
+                enclosureLength = String.valueOf(fileBytes);
+            }
+            enclosureElement.addAttribute("length", enclosureLength);
         }
 
         nullSafeList(item.getCategories())
@@ -257,5 +279,23 @@ public class RssXmlBuilder {
     static String instantToString(Instant instant) {
         return instant.atOffset(ZoneOffset.UTC)
             .format(DateTimeFormatter.RFC_1123_DATE_TIME);
+    }
+
+    @NonNull
+    private Long getFileSizeBytes(String url) {
+        return webClient.get()
+            .uri(url)
+            .header(HttpHeaders.USER_AGENT, UA)
+            .retrieve()
+            .toBodilessEntity()
+            .map(HttpEntity::getHeaders)
+            .mapNotNull(headers -> headers.getFirst(HttpHeaders.CONTENT_LENGTH))
+            .map(Long::parseLong)
+            .doOnError(e -> log.debug("Failed to get file size from url: {}", url,
+                Throwables.getRootCause(e))
+            )
+            .onErrorReturn(0L)
+            .blockOptional()
+            .orElseThrow();
     }
 }
