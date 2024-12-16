@@ -142,7 +142,7 @@ class RSS2Test {
                 RSS2.Item.builder()
                     .title("title1")
                     .description("""
-                        <p>并且会保留处理后的图片以供后面的访问。</p>
+                        <p>&并且会保留处理后的图片以供后面的访问。</p>
                         """)
                     .link("link1")
                     .pubDate(Instant.EPOCH)
@@ -175,7 +175,7 @@ class RSS2Test {
             			</title>
             			<link>link1</link>
             			<description>
-            				<![CDATA[<p>并且会保留处理后的图片以供后面的访问。</p>]]>
+            				<![CDATA[<p>&并且会保留处理后的图片以供后面的访问。</p>]]>
             			</description>
             			<guid isPermaLink="false">guid1</guid>
             			<pubDate>Thu, 1 Jan 1970 00:00:00 GMT</pubDate>

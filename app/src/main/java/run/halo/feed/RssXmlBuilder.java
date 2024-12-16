@@ -152,6 +152,13 @@ public class RssXmlBuilder {
         itemElement.addElement("link").addText(item.getLink());
 
         var description = Optional.of(getDescriptionWithTelemetry(item))
+            .map(content -> {
+                if (externalUrl != null) {
+                    return new RelativeLinkProcessor(externalUrl)
+                        .processForHtml(content);
+                }
+                return content;
+            })
             .map(XmlCharUtils::removeInvalidXmlChar)
             .orElseThrow();
         itemElement.addElement("description").addCDATA(description);
