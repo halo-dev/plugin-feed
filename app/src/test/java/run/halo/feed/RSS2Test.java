@@ -45,7 +45,8 @@ class RSS2Test {
         // language=xml
         var expected = """
             <?xml version="1.0" encoding="UTF-8"?>
-            <rss xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
+            <rss xmlns:dc="http://purl.org/dc/elements/1.1/"
+             xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
             	<channel>
             		<title>title</title>
             		<link>link</link>
@@ -109,7 +110,7 @@ class RSS2Test {
         // language=xml
         var expected = """
             <?xml version="1.0" encoding="UTF-8"?>
-             <rss
+             <rss xmlns:dc="http://purl.org/dc/elements/1.1/"
                 xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
                 <channel>
                     <title>title</title>
@@ -161,7 +162,8 @@ class RSS2Test {
         // language=xml
         var expected = """
             <?xml version="1.0" encoding="UTF-8"?>
-            <rss xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
+            <rss xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
             	<channel>
             		<title>title</title>
             		<link>link</link>
