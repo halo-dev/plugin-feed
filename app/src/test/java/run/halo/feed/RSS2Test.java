@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 class RSS2Test {
@@ -127,6 +128,60 @@ class RSS2Test {
                     </user>
                 </channel>
              </rss>
+            """.formatted(lastBuildDate);
+        assertThat(rssXml).isEqualToIgnoringWhitespace(expected);
+    }
+
+    @Test
+    void invalidCharTest() {
+        var rss = RSS2.builder()
+            .title("title")
+            .description("description")
+            .link("link")
+            .items(Collections.singletonList(
+                RSS2.Item.builder()
+                    .title("title1")
+                    .description("""
+                        <p>并且会保留处理后的图片以供后面的访问。</p>
+                        """)
+                    .link("link1")
+                    .pubDate(Instant.EPOCH)
+                    .guid("guid1")
+                    .build()
+            ))
+            .build();
+        var instant = Instant.now();
+        var rssXml = new RssXmlBuilder()
+            .withRss2(rss)
+            .withGenerator("Halo")
+            .withLastBuildDate(instant)
+            .toXmlString();
+
+        var lastBuildDate = RssXmlBuilder.instantToString(instant);
+        // language=xml
+        var expected = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <rss xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
+            	<channel>
+            		<title>title</title>
+            		<link>link</link>
+            		<description>description</description>
+            		<generator>Halo</generator>
+            		<language>zh-cn</language>
+            		<lastBuildDate>%s</lastBuildDate>
+            		<item>
+            			<title>
+            				<![CDATA[title1]]>
+            			</title>
+            			<link>link1</link>
+            			<description>
+            				<![CDATA[<p>并且会保留处理后的图片以供后面的访问。</p>]]>
+            			</description>
+            			<guid isPermaLink="false">guid1</guid>
+            			<pubDate>Thu, 1 Jan 1970 00:00:00 GMT</pubDate>
+            		</item>
+            	</channel>
+            </rss>
             """.formatted(lastBuildDate);
         assertThat(rssXml).isEqualToIgnoringWhitespace(expected);
     }
