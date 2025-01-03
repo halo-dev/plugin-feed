@@ -3,6 +3,7 @@ package run.halo.feed;
 import com.google.common.base.Throwables;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -33,6 +34,7 @@ public class RssXmlBuilder {
             + "Chrome/131.0.0.0 Safari/537.36";
     private final WebClient webClient = WebClient.builder()
         .clientConnector(new ReactorClientHttpConnector(HttpClient.create()
+            .responseTimeout(Duration.ofSeconds(1))
             .followRedirect(true))
         )
         .build();
@@ -313,6 +315,6 @@ public class RssXmlBuilder {
             )
             .onErrorReturn(0L)
             .blockOptional()
-            .orElseThrow();
+            .orElse(0L);
     }
 }
