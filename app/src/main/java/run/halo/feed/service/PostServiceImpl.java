@@ -92,7 +92,7 @@ public class PostServiceImpl implements PostService {
                 equal("spec.visible", Post.VisibleEnum.PUBLIC.name())
             ));
         if (query != null) {
-            builder.fieldQuery(query);
+            builder.andQuery(query);
         }
         return builder.build();
     }
