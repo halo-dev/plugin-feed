@@ -1,6 +1,9 @@
 package run.halo.feed;
 
+import static run.halo.feed.RssUtils.genRelativeThumbUri;
+
 import com.google.common.base.Throwables;
+import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -8,13 +11,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 import run.halo.app.core.attachment.ThumbnailSize;
 import run.halo.app.infra.utils.PathUtils;
 import run.halo.feed.telemetry.TelemetryEndpoint;
-
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class RelativeLinkProcessor {
@@ -66,8 +65,6 @@ public class RelativeLinkProcessor {
         processElementAttr(embeds, "src", false);
 
         return document.body().html();
-//        var outputHtml = document.body().html();
-//        return StringEscapeUtils.unescapeHtml4(outputHtml);
     }
 
     private void processElementAttr(Elements elements, String attrKey, boolean canThumb) {
@@ -89,10 +86,7 @@ public class RelativeLinkProcessor {
     }
 
     private String genThumbUrl(String url, ThumbnailSize size) {
-        return processLink("/apis/api.storage.halo.run/v1alpha1/thumbnails/-/via-uri?uri="
-                + UriUtils.encode(url, StandardCharsets.UTF_8)
-                + "&size=" + size.name().toLowerCase()
-        );
+        return processLink(genRelativeThumbUri(url, size));
     }
 
     private String processLink(String link) {
@@ -101,7 +95,7 @@ public class RelativeLinkProcessor {
         }
         var contextPath = StringUtils.defaultIfBlank(externalUri.getPath(), "/");
         var linkUri = UriComponentsBuilder.fromUriString(URI.create(link).toASCIIString())
-                .build(true);
+            .build(true);
         var builder = UriComponentsBuilder.fromUriString(externalUri.toString());
         if (shouldAppendPath(contextPath, link)) {
             builder.pathSegment(linkUri.getPathSegments().toArray(new String[0]));
@@ -109,10 +103,10 @@ public class RelativeLinkProcessor {
             builder.replacePath(linkUri.getPath());
         }
         return builder.query(linkUri.getQuery())
-                .fragment(linkUri.getFragment())
-                .build(true)
-                .toUri()
-                .toString();
+            .fragment(linkUri.getFragment())
+            .build(true)
+            .toUri()
+            .toString();
     }
 
     private static boolean shouldAppendPath(String contextPath, String link) {

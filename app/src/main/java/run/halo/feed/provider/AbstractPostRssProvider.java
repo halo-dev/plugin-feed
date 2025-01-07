@@ -1,5 +1,7 @@
 package run.halo.feed.provider;
 
+import static run.halo.feed.RssUtils.genRelativeThumbUri;
+
 import java.util.List;
 import java.util.function.Function;
 import lombok.Data;
@@ -91,10 +93,7 @@ public abstract class AbstractPostRssProvider {
     }
 
     private String genThumbUrl(String url) {
-        return externalLinkProcessor.processLink(
-            "/apis/api.storage.halo.run/v1alpha1/thumbnails/-/via-uri?uri=" + url + "&size="
-                + ThumbnailSize.M.name().toLowerCase()
-        );
+        return externalLinkProcessor.processLink(genRelativeThumbUri(url, ThumbnailSize.M));
     }
 
     protected Flux<PostWithContent> listPosts(ServerRequest request) {
