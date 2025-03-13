@@ -38,9 +38,6 @@ jobs:
           echo "Extracted Version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Build with Gradle
-        run: ./gradlew clean build -Pversion=${{ env.VERSION }}
-
       - name: Push to Maven
         env:
           OSSR_USERNAME: ${{ secrets.MAVEN_USERNAME }}
