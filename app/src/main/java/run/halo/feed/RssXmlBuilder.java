@@ -2,6 +2,7 @@ package run.halo.feed;
 
 import com.google.common.base.Throwables;
 import java.io.StringReader;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -20,10 +21,14 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import run.halo.feed.telemetry.TelemetryEndpoint;
 
@@ -82,7 +87,7 @@ public class RssXmlBuilder {
         return this;
     }
 
-    public String toXmlString() {
+    public Mono<String> toXmlString() {
         Document document = DocumentHelper.createDocument();
 
         Element root = DocumentHelper.createElement("rss");
@@ -136,9 +141,10 @@ public class RssXmlBuilder {
         }
 
         var items = rss2.getItems();
-        createItemElementsToChannel(channel, items);
 
-        return document.asXML();
+        return createItemElementsToChannel(channel, items)
+            .thenReturn(document)
+            .map(Document::asXML);
     }
 
     private void copyAttributesAndChildren(Element target, Element source) {
@@ -171,14 +177,16 @@ public class RssXmlBuilder {
         }
     }
 
-    private void createItemElementsToChannel(Element channel, List<RSS2.Item> items) {
+    private Mono<Void> createItemElementsToChannel(Element channel, List<RSS2.Item> items) {
         if (CollectionUtils.isEmpty(items)) {
-            return;
+            return Mono.empty();
         }
-        items.forEach(item -> createItemElementToChannel(channel, item));
+        return Flux.fromIterable(items)
+            .flatMap(item -> createItemElementToChannel(channel, item))
+            .then();
     }
 
-    private void createItemElementToChannel(Element channel, RSS2.Item item) {
+    private Mono<Void> createItemElementToChannel(Element channel, RSS2.Item item) {
         Element itemElement = channel.addElement("item");
         itemElement.addElement("title")
             .addCDATA(XmlCharUtils.removeInvalidXmlChar(item.getTitle()));
@@ -205,18 +213,19 @@ public class RssXmlBuilder {
                 .addText(item.getAuthor());
         }
 
+        Mono<Void> handleEnclosure = Mono.empty();
         if (StringUtils.isNotBlank(item.getEnclosureUrl())) {
             var enclosureElement = itemElement.addElement("enclosure")
                 .addAttribute("url", item.getEnclosureUrl())
                 .addAttribute("type", item.getEnclosureType());
-
             var enclosureLength = item.getEnclosureLength();
+            enclosureElement.addAttribute("length", enclosureLength);
             if (StringUtils.isBlank(enclosureLength)) {
                 // https://www.rssboard.org/rss-validator/docs/error/MissingAttribute.html
-                var fileBytes = getFileSizeBytes(item.getEnclosureUrl());
-                enclosureLength = String.valueOf(fileBytes);
+                handleEnclosure = getFileSizeBytes(item.getEnclosureUrl())
+                    .doOnNext(fileBytes -> enclosureElement.addAttribute("length", String.valueOf(fileBytes)))
+                    .then();
             }
-            enclosureElement.addAttribute("length", enclosureLength);
         }
 
         nullSafeList(item.getCategories())
@@ -264,6 +273,7 @@ public class RssXmlBuilder {
                 }
             }
         });
+        return handleEnclosure;
     }
 
     private String getDescriptionWithTelemetry(RSS2.Item item) {
@@ -298,23 +308,47 @@ public class RssXmlBuilder {
             .format(DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 
+
     @NonNull
-    private Long getFileSizeBytes(String url) {
+    Mono<Long> getFileSizeBytes(String url) {
         return webClient.get()
-            .uri(url)
+            .uri(URI.create(url))
             .header(HttpHeaders.USER_AGENT, UA)
             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
             .header(HttpHeaders.RANGE, "bytes=0-0")
+            .headers(headers -> {
+                if (StringUtils.isNotBlank(externalUrl)) {
+                    // For Referrer anti-hotlinking
+                    headers.set(HttpHeaders.REFERER, externalUrl);
+                }
+            })
             .retrieve()
             .toBodilessEntity()
             .map(HttpEntity::getHeaders)
-            .mapNotNull(headers -> headers.getFirst(HttpHeaders.CONTENT_LENGTH))
-            .map(Long::parseLong)
+            .mapNotNull(headers -> headers.getFirst(HttpHeaders.CONTENT_RANGE))
+            .mapNotNull(RssXmlBuilder::parseLengthOfContentRange)
             .doOnError(e -> log.debug("Failed to get file size from url: {}", url,
                 Throwables.getRootCause(e))
             )
             .onErrorReturn(0L)
-            .blockOptional()
-            .orElse(0L);
+            .defaultIfEmpty(0L);
     }
+
+    @Nullable
+    static Long parseLengthOfContentRange(@Nullable String contentRange) {
+        if (contentRange == null) {
+            return null;
+        }
+        // Refer to https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Range#syntax
+        var range = contentRange.split("/");
+        if (range.length != 2) {
+            return null;
+        }
+        var lengthStr = range[1];
+        if ("*".equals(lengthStr)) {
+            return null;
+        }
+        return Long.parseLong(range[1]);
+    }
+
 }

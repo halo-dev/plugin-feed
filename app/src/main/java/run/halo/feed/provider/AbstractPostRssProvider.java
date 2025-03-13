@@ -126,8 +126,7 @@ public abstract class AbstractPostRssProvider {
 
     protected Mono<User> fetchUser(String username) {
         return client.fetch(User.class, username)
-            .switchIfEmpty(Mono.error(new ServerWebInputException("User not found")))
-            .subscribeOn(Schedulers.boundedElastic());
+            .switchIfEmpty(Mono.error(new ServerWebInputException("User not found")));
     }
 
     private Flux<String> fetchCategoryDisplayName(List<String> categoryNames) {
@@ -137,8 +136,7 @@ public abstract class AbstractPostRssProvider {
         return client.listAll(Category.class, ListOptions.builder()
                 .fieldQuery(QueryFactory.in("metadata.name", categoryNames))
                 .build(), ExtensionUtil.defaultSort())
-            .map(category -> category.getSpec().getDisplayName())
-            .subscribeOn(Schedulers.boundedElastic());
+            .map(category -> category.getSpec().getDisplayName());
     }
 
     @Data

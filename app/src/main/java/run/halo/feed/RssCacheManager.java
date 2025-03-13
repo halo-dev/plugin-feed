@@ -3,6 +3,7 @@ package run.halo.feed;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -18,7 +19,7 @@ import run.halo.app.plugin.ReactiveSettingFetcher;
 @RequiredArgsConstructor
 public class RssCacheManager {
     private final Duration expireMinutes = Duration.ofMinutes(60);
-    private final Cache<String, String> cache = CacheBuilder.newBuilder()
+    private final Cache<String, Mono<String>> cache = CacheBuilder.newBuilder()
         .expireAfterWrite(expireMinutes)
         .build();
 
@@ -26,13 +27,12 @@ public class RssCacheManager {
     private final ReactiveSettingFetcher settingFetcher;
 
     public Mono<String> get(String requestPath, Mono<RSS2> loader) {
-        return Mono.fromCallable(() -> cache.get(requestPath,
-                () -> generateRssXml(requestPath, loader)
-                    .doOnNext(xml -> cache.put(requestPath, xml))
-                    .block()
-            ))
-            .cache()
-            .subscribeOn(Schedulers.boundedElastic());
+        try {
+            return cache.get(requestPath, () -> generateRssXml(requestPath, loader).cache())
+                .subscribeOn(Schedulers.boundedElastic());
+        } catch (ExecutionException e) {
+            return Mono.error(e);
+        }
     }
 
     private Mono<String> generateRssXml(String requestPath, Mono<RSS2> loader) {
@@ -51,10 +51,8 @@ public class RssCacheManager {
             .doOnNext(prop -> builder.withExtractRssTags(prop.getRssExtraTags()));
 
         return Mono.when(rssMono, generatorMono, extractTagsMono)
-            // toXmlString is a blocking operation
-            .then(Mono.fromCallable(builder::toXmlString)
-                .subscribeOn(Schedulers.boundedElastic())
-            );
+            .thenReturn(builder)
+            .flatMap(RssXmlBuilder::toXmlString);
     }
 
     @EventListener(PluginConfigUpdatedEvent.class)
