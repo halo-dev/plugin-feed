@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
+import reactor.test.StepVerifier;
 
 class RSS2Test {
 
@@ -80,7 +81,10 @@ class RSS2Test {
             	</channel>
             </rss>
             """.formatted(lastBuildDate);
-        assertThat(rssXml).isEqualToIgnoringWhitespace(expected);
+
+        StepVerifier.create(rssXml)
+            .assertNext(xml -> assertThat(xml).isEqualToIgnoringWhitespace(expected))
+            .verifyComplete();
     }
 
     @Test
@@ -132,7 +136,9 @@ class RSS2Test {
                 </channel>
              </rss>
             """.formatted(lastBuildDate);
-        assertThat(rssXml).isEqualToIgnoringWhitespace(expected);
+        StepVerifier.create(rssXml)
+            .assertNext(xml -> assertThat(xml).isEqualToIgnoringWhitespace(expected))
+            .verifyComplete();
     }
 
     @Test
@@ -188,6 +194,8 @@ class RSS2Test {
             	</channel>
             </rss>
             """.formatted(lastBuildDate);
-        assertThat(rssXml).isEqualToIgnoringWhitespace(expected);
+        StepVerifier.create(rssXml)
+            .assertNext(xml -> assertThat(xml).isEqualToIgnoringWhitespace(expected))
+            .verifyComplete();
     }
 }
