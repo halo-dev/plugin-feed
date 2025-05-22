@@ -8,7 +8,7 @@ metadata:
     "store.halo.run/app-id": "app-KhIVw"
 spec:
   enabled: true
-  requires: ">=2.20.11"
+  requires: ">=2.21.0"
   author:
     name: Halo
     website: https://github.com/halo-dev
