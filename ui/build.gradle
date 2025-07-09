@@ -1,23 +1,33 @@
 plugins {
-  id "com.github.node-gradle.node" version "7.1.0"
+    id 'base'
+    id "com.github.node-gradle.node" version "7.1.0"
 }
 
-tasks.register('clean', Delete) {
-  delete layout.buildDirectory
+group 'run.halo.feed.ui'
+
+tasks.register('pnpmBuild', PnpmTask) {
+    group = 'build'
+    description = 'Build the UI project using pnpm'
+    args = ['build']
+    dependsOn tasks.named('pnpmInstall')
+    inputs.dir(layout.projectDirectory.dir('src'))
+    inputs.files(fileTree(
+        dir: layout.projectDirectory,
+        includes: ['*.cjs', '*.ts', '*.js', '*.json', '*.yaml']))
+    outputs.dir(layout.buildDirectory.dir('dist'))
 }
 
-tasks.register('build', PnpmTask) {
-  group = 'build'
-  description = 'Build console.'
-  dependsOn tasks.named('pnpmInstall')
-  pnpmCommand = ['run', 'build']
-  inputs.dir('src')
-  inputs.files(fileTree('node_modules').exclude('.cache'))
-  inputs.files(layout.projectDirectory.asFile.listFiles({ pathname ->
-    pathname.name.endsWithAny(".json", ".yaml", ".env", ".ts", ".json")
-  } as FileFilter))
-  outputs.dir(layout.buildDirectory.dir('dist'))
-  configure {
-    shouldRunAfter tasks.named('clean')
-  }
+tasks.register('pnpmCheck', PnpmTask) {
+    group = 'verification'
+    description = 'Run lint for the UI project using pnpm'
+    args = ['lint']
+    dependsOn tasks.named('pnpmInstall')
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('pnpmCheck')
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('pnpmBuild')
 }

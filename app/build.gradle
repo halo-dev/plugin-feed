@@ -1,7 +1,7 @@
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "8.0.0-rc2"
-    id "run.halo.plugin.devtools" version "0.4.1"
+    id "io.freefair.lombok" version "8.14"
+    id "run.halo.plugin.devtools" version "0.6.1"
 }
 
 group = 'run.halo.feed'
@@ -26,14 +26,15 @@ dependencies {
     testImplementation 'io.projectreactor:reactor-test'
 }
 
-tasks.register('copyUI', Copy) {
-    dependsOn ':ui:build'
+tasks.register('processUiResources', Copy) {
     from project(':ui').layout.buildDirectory.dir('dist')
     into layout.buildDirectory.dir('resources/main/console')
+    dependsOn project(':ui').tasks.named('assemble')
+    shouldRunAfter tasks.named('processResources')
 }
 
-tasks.named('processResources') {
-    dependsOn('copyUI')
+tasks.named('classes') {
+    dependsOn tasks.named('processUiResources')
 }
 
 test {
