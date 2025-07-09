@@ -15,6 +15,6 @@ jobs:
     with:
       app-id: app-KhIVw
       node-version: "20"
-      pnpm-version: "9"
+      pnpm-version: "10"
       ui-path: "ui"
       artifacts-path: 'app/build/libs'
