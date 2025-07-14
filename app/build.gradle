@@ -42,6 +42,6 @@ test {
 }
 
 halo {
-    version = '2.20.11'
+    version = '2.21.3'
     debug = true
 }
