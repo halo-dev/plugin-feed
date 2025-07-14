@@ -1,45 +1,50 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "vite build --watch --mode=development",
-    "build": "vite build",
-    "test-unit": "vitest --environment jsdom --run",
-    "type-check": "vue-tsc -p tsconfig.app.json --noEmit",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "prettier": "prettier --write src/"
+    "build": "rsbuild build",
+    "dev": "rsbuild build --watch --env-mode=development",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "prettier": "prettier --write src/",
+    "type-check": "vue-tsc -p tsconfig.app.json --noEmit"
+  },
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-organize-imports"
+    ],
+    "printWidth": 100,
+    "semi": false,
+    "singleQuote": true,
+    "tabWidth": 2
   },
   "dependencies": {
-    "@halo-dev/api-client": "^2.20.0",
-    "@halo-dev/components": "https://pkg.pr.new/@halo-dev/components@7383",
-    "@halo-dev/console-shared": "^2.20.0",
-    "@tanstack/vue-query": "^4.37.1",
-    "axios": "^1.7.9",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "@halo-dev/api-client": "^2.21.1",
+    "@halo-dev/components": "^2.21.0",
+    "@halo-dev/console-shared": "^2.21.0",
+    "@tanstack/vue-query": "^4.40.0",
+    "axios": "^1.10.0",
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@halo-dev/ui-plugin-bundler-kit": "^2.20.0",
-    "@rushstack/eslint-patch": "^1.10.4",
+    "@halo-dev/ui-plugin-bundler-kit": "^2.21.2",
+    "@rsbuild/core": "^1.4.5",
+    "@rushstack/eslint-patch": "^1.12.0",
     "@tsconfig/node18": "^2.0.1",
-    "@types/jsdom": "^20.0.1",
-    "@types/node": "^18.19.67",
-    "@unocss/eslint-config": "^0.61.9",
-    "@vitejs/plugin-vue": "^5.2.1",
-    "@vue/eslint-config-prettier": "^9.0.0",
-    "@vue/eslint-config-typescript": "^11.0.3",
+    "@types/node": "^18.19.117",
+    "@unocss/eslint-config": "^66.3.3",
+    "@unocss/webpack": "^66.3.3",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.4.0",
-    "eslint": "^8.57.1",
-    "eslint-plugin-vue": "^9.32.0",
-    "jsdom": "^19.0.0",
-    "prettier": "^3.4.2",
+    "eslint": "^9.30.1",
+    "eslint-plugin-vue": "^10.3.0",
+    "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.1.0",
-    "sass": "^1.82.0",
+    "sass": "^1.89.2",
     "typescript": "~5.5.4",
-    "unocss": "^0.61.9",
-    "vite": "^5.4.11",
-    "vitest": "^0.34.6",
-    "vue-tsc": "^2.1.10"
+    "unocss": "^66.3.3",
+    "vue-tsc": "^3.0.1"
   },
-  "packageManager": "pnpm@9.14.4"
+  "packageManager": "pnpm@10.12.4+sha512.5ea8b0deed94ed68691c9bad4c955492705c5eeb8a87ef86bc62c74a26b037b08ff9570f108b2e4dbd1dd1a9186fea925e527f141c648e85af45631074680184"
 }

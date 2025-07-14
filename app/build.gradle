@@ -1,11 +1,22 @@
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "8.0.0-rc2"
-    id "run.halo.plugin.devtools" version "0.4.1"
+    id "io.freefair.lombok" version "8.14"
+    id "run.halo.plugin.devtools" version "0.6.1"
 }
 
 group = 'run.halo.feed'
 version = rootProject.version
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = 'UTF-8'
+}
 
 jar {
     archiveBaseName.set("plugin-feed")
@@ -24,16 +35,18 @@ dependencies {
     testImplementation 'run.halo.app:api'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.register('copyUI', Copy) {
-    dependsOn ':ui:build'
+tasks.register('processUiResources', Copy) {
     from project(':ui').layout.buildDirectory.dir('dist')
     into layout.buildDirectory.dir('resources/main/console')
+    dependsOn project(':ui').tasks.named('assemble')
+    shouldRunAfter tasks.named('processResources')
 }
 
-tasks.named('processResources') {
-    dependsOn('copyUI')
+tasks.named('classes') {
+    dependsOn tasks.named('processUiResources')
 }
 
 test {
@@ -41,6 +54,6 @@ test {
 }
 
 halo {
-    version = '2.20.11'
+    version = '2.21.3'
     debug = true
 }
