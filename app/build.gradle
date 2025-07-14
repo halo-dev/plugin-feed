@@ -7,6 +7,17 @@ plugins {
 group = 'run.halo.feed'
 version = rootProject.version
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = 'UTF-8'
+}
+
 jar {
     archiveBaseName.set("plugin-feed")
     dependsOn(":api:jar")
@@ -24,6 +35,7 @@ dependencies {
     testImplementation 'run.halo.app:api'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.register('processUiResources', Copy) {

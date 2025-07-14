@@ -8,17 +8,19 @@ group = 'run.halo.feed'
 version = rootProject.version
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
     withSourcesJar()
 }
 
-compileJava.options.encoding = "UTF-8"
-compileTestJava.options.encoding = "UTF-8"
-javadoc.options.encoding = "UTF-8"
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = 'UTF-8'
+}
 
 dependencies {
-    api platform('run.halo.tools.platform:plugin:2.20.11')
+    api platform('run.halo.tools.platform:plugin:2.21.0')
     compileOnly 'run.halo.app:api'
 }
 

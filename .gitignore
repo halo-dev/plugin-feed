@@ -75,6 +75,5 @@ application-local.yml
 application-local.yaml
 application-local.properties
 
-/ui/build/
-app/workplace/
 app/src/main/resources/console/
+workplace/
