@@ -13,7 +13,7 @@ RSS 订阅插件提供了用于生成 RSS 订阅链接的功能， 默认提供�
 
 可在插件列表中点击 RSS 插件进入插件设置页面，查看支持的订阅链接列表。
 
-如果安装并启用了适配此 RSS 插件的其他插件，例如 [瞬间插件](https://www.halo.run/store/apps/app-SnwWDJ) 则会提供更多的订阅链接类型。
+如果安装并启用了适配此 RSS 插件的其他插件，例如 [瞬间插件](https://www.halo.run/store/apps/app-SnwWD) 则会提供更多的订阅链接类型。
 
 你可以将订阅链接添加到 [Feedly](https://feedly.com/)、[Inoreader](https://www.inoreader.com/)、[Reeder](https://reederapp.com/)、[NetNewsWire](https://ranchero.com/netnewswire/)、[Follow](https://follow.is)
 等 RSS 订阅工具中，订阅你感兴趣的内容，但需要注意的是，链接中的 `{slug}`、`{name}` 等为占位符，需要替换为实际的类目名称，slug
